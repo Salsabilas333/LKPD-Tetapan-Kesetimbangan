@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LKPD — Tetapan Kesetimbangan Kc & Kp</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-800: #085041;
+    --amber-50: #FAEEDA; --amber-100: #FAC775; --amber-400: #BA7517; --amber-600: #854F0B; --amber-800: #633806;
+    --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-400: #378ADD; --blue-600: #185FA5; --blue-800: #0C447C;
+    --coral-50: #FAECE7; --coral-100: #F5C4B3; --coral-400: #D85A30; --coral-600: #993C1D; --coral-800: #712B13;
+    --purple-50: #EEEDFE; --purple-100: #CECBF6; --purple-400: #7F77DD; --purple-600: #534AB7; --purple-800: #3C3489;
+    --green-50: #EAF3DE; --green-400: #639922; --green-800: #27500A;
+    --red-50: #FCEBEB; --red-400: #E24B4A; --red-800: #791F1F;
+    --gray-50: #F1EFE8; --gray-200: #B4B2A9; --gray-600: #5F5E5A; --gray-800: #444441;
+    --bg: #FAFAF8; --surface: #fff; --text: #1a1a18; --muted: #5F5E5A; --border: rgba(0,0,0,0.1);
+    --r-md: 10px; --r-lg: 16px; --r-xl: 24px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+  /* NAV */
+  .nav { background: var(--teal-600); padding: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.18); }
+  .nav-inner { max-width: 900px; margin: auto; display: flex; align-items: center; gap: 0; }
+  .nav-brand { color: #fff; font-family: 'Playfair Display', serif; font-size: 16px; padding: 14px 20px; white-space: nowrap; border-right: 1px solid rgba(255,255,255,.2); }
+  .nav-tabs { display: flex; overflow-x: auto; }
+  .nav-tab { color: rgba(255,255,255,.75); padding: 14px 16px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; white-space: nowrap; transition: all .2s; border-bottom: 3px solid transparent; }
+  .nav-tab:hover { color: #fff; background: rgba(255,255,255,.08); }
+  .nav-tab.active { color: #fff; border-bottom-color: var(--amber-100); background: rgba(255,255,255,.12); }
+
+  /* PAGES */
+  .page { display: none; max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+  .page.active { display: block; }
+
+  /* SECTION HEADERS */
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-400); margin-bottom: 8px; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 36px; color: var(--teal-800); margin-bottom: 8px; line-height: 1.2; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--teal-800); margin-bottom: 12px; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+
+  /* PROSE */
+  p { color: var(--muted); margin-bottom: 12px; font-size: 15px; }
+  .hero-desc { font-size: 17px; color: var(--muted); max-width: 600px; }
+  .info-box { background: var(--blue-50); border-left: 4px solid var(--blue-400); border-radius: 0 var(--r-md) var(--r-md) 0; padding: 14px 18px; margin: 16px 0; }
+  .info-box p { color: var(--blue-800); margin: 0; font-size: 14px; }
+  .warn-box { background: var(--amber-50); border-left: 4px solid var(--amber-400); border-radius: 0 var(--r-md) var(--r-md) 0; padding: 14px 18px; margin: 16px 0; }
+  .warn-box p { color: var(--amber-800); margin: 0; font-size: 14px; }
+
+  /* FORMULA CARD */
+  .formula-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px 28px; margin: 20px 0; }
+  .formula { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--teal-600); background: var(--teal-50); border-radius: var(--r-md); padding: 14px 20px; display: inline-block; margin: 10px 0; }
+  .formula sub, .formula sup { font-size: 13px; }
+  .var-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+  .var-table td { padding: 6px 12px; border-bottom: 1px solid var(--border); }
+  .var-table td:first-child { font-family: 'JetBrains Mono', monospace; color: var(--teal-600); font-weight: 600; width: 80px; }
+  .var-table td:last-child { color: var(--muted); }
+
+  /* REACTION DISPLAY */
+  .reaction { font-family: 'JetBrains Mono', monospace; font-size: 16px; background: var(--gray-50); border-radius: var(--r-md); padding: 14px 20px; color: var(--gray-800); margin: 10px 0; }
+
+  /* CARDS GRID */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px 22px; }
+  .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; }
+
+  /* QUIZ COMMON */
+  .quiz-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-xl); padding: 30px; margin: 24px 0; }
+  .quiz-num { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-400); margin-bottom: 6px; }
+  .quiz-q { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 20px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 8px; border: 1.5px solid; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; transition: all .18s; }
+  .btn-primary { background: var(--teal-600); color: #fff; border-color: var(--teal-600); }
+  .btn-primary:hover { background: var(--teal-800); border-color: var(--teal-800); }
+  .btn-outline { background: transparent; color: var(--teal-600); border-color: var(--teal-600); }
+  .btn-outline:hover { background: var(--teal-50); }
+  .feedback { margin-top: 14px; padding: 12px 16px; border-radius: var(--r-md); font-size: 14px; font-weight: 500; display: none; }
+  .feedback.correct { background: var(--green-50); color: var(--green-800); border: 1px solid #639922; }
+  .feedback.wrong { background: var(--red-50); color: var(--red-800); border: 1px solid var(--red-400); }
+  .feedback.show { display: block; }
+
+  /* MCQ */
+  .mcq-options { display: grid; gap: 10px; margin-bottom: 16px; }
+  .mcq-opt { padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--r-md); cursor: pointer; font-size: 15px; transition: all .18s; background: var(--surface); text-align: left; }
+  .mcq-opt:hover { border-color: var(--teal-400); background: var(--teal-50); }
+  .mcq-opt.selected { border-color: var(--teal-600); background: var(--teal-50); color: var(--teal-800); }
+  .mcq-opt.correct-ans { border-color: var(--green-400); background: var(--green-50); color: var(--green-800); }
+  .mcq-opt.wrong-ans { border-color: var(--red-400); background: var(--red-50); color: var(--red-800); }
+
+  /* DRAG & DROP */
+  .drag-area { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; min-height: 54px; }
+  .draggable { padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--teal-400); background: var(--teal-50); color: var(--teal-800); cursor: grab; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; user-select: none; transition: transform .15s, box-shadow .15s; }
+  .draggable:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15,110,86,.15); }
+  .draggable:active { cursor: grabbing; transform: scale(0.97); }
+  .draggable.dragging { opacity: 0.4; }
+  .drop-zone { min-width: 90px; min-height: 40px; border: 2px dashed var(--border); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; padding: 4px 8px; transition: border-color .2s, background .2s; vertical-align: middle; }
+  .drop-zone.drag-over { border-color: var(--teal-400); background: var(--teal-50); }
+  .drop-zone.filled { border-style: solid; border-color: var(--teal-400); background: var(--teal-50); }
+  .drop-zone .draggable { margin: 0; }
+  .formula-line { font-family: 'JetBrains Mono', monospace; font-size: 17px; color: var(--gray-800); line-height: 2.4; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+
+  /* MATCH */
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .match-col { display: flex; flex-direction: column; gap: 8px; }
+  .match-item { padding: 12px 14px; border-radius: var(--r-md); border: 1.5px solid var(--border); font-size: 14px; cursor: pointer; transition: all .2s; background: var(--surface); }
+  .match-item:hover { border-color: var(--teal-400); }
+  .match-item.selected { border-color: var(--teal-600); background: var(--teal-50); color: var(--teal-800); }
+  .match-item.matched { border-color: var(--green-400); background: var(--green-50); color: var(--green-800); cursor: default; pointer-events: none; }
+  .match-item.wrong-sel { border-color: var(--red-400); background: var(--red-50); animation: shake .3s; }
+  .match-item.left-item { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+
+  /* FILL BLANK */
+  .fill-input { font-family: 'JetBrains Mono', monospace; font-size: 16px; border: none; border-bottom: 2px solid var(--teal-400); background: transparent; padding: 2px 6px; width: 90px; text-align: center; color: var(--teal-800); outline: none; }
+  .fill-input:focus { border-bottom-color: var(--teal-600); }
+  .fill-input.correct-in { border-bottom-color: var(--green-400); color: var(--green-800); }
+  .fill-input.wrong-in { border-bottom-color: var(--red-400); color: var(--red-800); }
+
+  /* SCORE BAR */
+  .score-bar { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); padding: 20px 24px; margin: 24px 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .score-num { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--teal-600); }
+  .score-label { font-size: 13px; color: var(--muted); }
+  .progress-bar { height: 8px; background: var(--gray-50); border-radius: 99px; flex: 1; min-width: 120px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--teal-400); border-radius: 99px; transition: width .5s; }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, var(--teal-600) 0%, var(--teal-800) 100%); color: #fff; border-radius: var(--r-xl); padding: 48px 40px; margin-bottom: 36px; position: relative; overflow: hidden; }
+  .hero::before { content: 'Kc Kp'; position: absolute; right: -10px; top: 10px; font-family: 'Playfair Display', serif; font-size: 120px; color: rgba(255,255,255,.06); pointer-events: none; }
+  .hero h1 { color: #fff; font-size: 38px; margin-bottom: 10px; }
+  .hero p { color: rgba(255,255,255,.8); font-size: 16px; margin-bottom: 24px; }
+  .hero-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 5px 14px; border-radius: 99px; background: rgba(255,255,255,.15); color: rgba(255,255,255,.9); font-size: 13px; font-weight: 500; border: 1px solid rgba(255,255,255,.2); }
+
+  /* STEP INDICATOR */
+  .step-row { display: flex; gap: 6px; margin: 24px 0; align-items: flex-start; }
+  .step-num { min-width: 28px; height: 28px; border-radius: 50%; background: var(--teal-400); color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-top: 2px; flex-shrink: 0; }
+  .step-body { flex: 1; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1.5px solid var(--border); margin: 32px 0; }
+
+  /* TABLE */
+  .nice-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+  .nice-table th { background: var(--teal-50); color: var(--teal-800); font-weight: 600; padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--teal-100); }
+  .nice-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted); }
+  .nice-table tr:hover td { background: var(--gray-50); }
+
+  /* BADGE */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+  .badge-teal { background: var(--teal-50); color: var(--teal-800); }
+  .badge-amber { background: var(--amber-50); color: var(--amber-800); }
+  .badge-blue { background: var(--blue-50); color: var(--blue-800); }
+
+  /* COMPLETION */
+  .completion { text-align: center; padding: 40px 20px; }
+  .completion-icon { font-size: 64px; margin-bottom: 16px; }
+  .completion h2 { color: var(--teal-600); margin-bottom: 8px; }
+  .completion p { color: var(--muted); max-width: 400px; margin: 0 auto; }
+
+  /* CALCULATOR */
+  .calc-form { display: grid; gap: 14px; }
+  .calc-field { display: flex; flex-direction: column; gap: 4px; }
+  .calc-field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .calc-field input, .calc-field select { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--r-md); font-family: 'JetBrains Mono', monospace; font-size: 14px; background: var(--surface); color: var(--text); outline: none; }
+  .calc-field input:focus, .calc-field select:focus { border-color: var(--teal-400); }
+  .calc-result { background: var(--teal-50); border: 1.5px solid var(--teal-100); border-radius: var(--r-lg); padding: 18px 22px; margin-top: 12px; display: none; }
+  .calc-result.show { display: block; }
+  .calc-result .result-val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--teal-600); }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 26px; } h2 { font-size: 20px; }
+    .hero { padding: 30px 20px; } .hero h1 { font-size: 28px; }
+    .match-grid { grid-template-columns: 1fr; }
+    .quiz-box { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">⚗️ LKPD Kimia</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="goPage('materi')">📖 Materi</button>
+      <button class="nav-tab" onclick="goPage('kuis1')">🎯 Kuis 1</button>
+      <button class="nav-tab" onclick="goPage('kuis2')">🔗 Kuis 2</button>
+      <button class="nav-tab" onclick="goPage('kuis3')">✏️ Kuis 3</button>
+      <button class="nav-tab" onclick="goPage('kalkulator')">🧮 Kalkulator</button>
+      <button class="nav-tab" onclick="goPage('nilai')">🏆 Nilai</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ======== HALAMAN MATERI ======== -->
+<div class="page active" id="page-materi">
+  <div class="hero">
+    <div class="section-label">Lembar Kerja Peserta Didik</div>
+    <h1>Tetapan Kesetimbangan</h1>
+    <p>Memahami konsep Kc dan Kp dalam kesetimbangan kimia melalui eksplorasi interaktif dan kuis seru!</p>
+    <div class="hero-chips">
+      <span class="chip">🎓 Kelas XI SMA/MA</span>
+      <span class="chip">⏱️ ±45 menit</span>
+      <span class="chip">🎯 KD 3.8 & 4.8</span>
+    </div>
+  </div>
+
+  <div class="section-label">Tujuan Pembelajaran</div>
+  <h2>Apa yang akan kamu pelajari?</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon" style="background:var(--teal-50)">🔬</div>
+      <h3>Konsep Kesetimbangan</h3>
+      <p>Memahami kondisi kesetimbangan dinamis dan ciri-cirinya dalam reaksi kimia reversibel.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:var(--amber-50)">📐</div>
+      <h3>Tetapan Kc</h3>
+      <p>Menghitung dan menggunakan tetapan kesetimbangan berdasarkan konsentrasi molar (Kc).</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:var(--blue-50)">💨</div>
+      <h3>Tetapan Kp</h3>
+      <p>Menghitung tetapan kesetimbangan berdasarkan tekanan parsial gas (Kp).</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:var(--purple-50)">🔗</div>
+      <h3>Hubungan Kc & Kp</h3>
+      <p>Menentukan hubungan matematis antara Kc dan Kp menggunakan hukum gas ideal.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-label">Materi Inti</div>
+  <h2>1. Kesetimbangan Dinamis</h2>
+  <p>Kesetimbangan kimia terjadi pada reaksi <strong>reversibel</strong> — yaitu reaksi yang dapat berjalan ke dua arah. Kesetimbangan tercapai ketika laju reaksi maju sama dengan laju reaksi balik.</p>
+  <div class="info-box"><p>💡 <strong>Ingat!</strong> Kesetimbangan bersifat <em>dinamis</em> — reaksi tetap terjadi di kedua arah, tetapi konsentrasi reaktan dan produk tidak berubah lagi.</p></div>
+
+  <div class="step-row">
+    <div class="step-num">1</div>
+    <div class="step-body"><h3>Ciri Kesetimbangan</h3><p>Sistem tertutup, reaksi reversibel, laju maju = laju balik, konsentrasi zat tetap (bukan nol).</p></div>
+  </div>
+  <div class="step-row">
+    <div class="step-num">2</div>
+    <div class="step-body"><h3>Hukum Kesetimbangan</h3><p>Pada suhu konstan, perbandingan konsentrasi produk terhadap reaktan (dipangkatkan koefisiennya) bernilai tetap.</p></div>
+  </div>
+
+  <hr class="divider">
+
+  <h2>2. Tetapan Kesetimbangan Kc</h2>
+  <p>Untuk reaksi umum: <span class="reaction">aA + bB ⇌ cC + dD</span></p>
+
+  <div class="formula-card">
+    <h3>Rumus Kc</h3>
+    <div class="formula">Kc = [C]<sup>c</sup> [D]<sup>d</sup> / [A]<sup>a</sup> [B]<sup>b</sup></div>
+    <table class="var-table">
+      <tr><td>[A], [B]</td><td>Konsentrasi molar reaktan (mol/L = M)</td></tr>
+      <tr><td>[C], [D]</td><td>Konsentrasi molar produk (mol/L = M)</td></tr>
+      <tr><td>a, b, c, d</td><td>Koefisien stoikiometri reaksi</td></tr>
+    </table>
+    <div class="warn-box" style="margin-top:14px"><p>⚠️ Zat padat (s) dan cairan murni (l) <strong>tidak dimasukkan</strong> ke dalam ekspresi Kc karena konsentrasinya dianggap konstan!</p></div>
+  </div>
+
+  <h3>Contoh Soal Kc</h3>
+  <p>Reaksi: <span class="reaction">N₂(g) + 3H₂(g) ⇌ 2NH₃(g)</span></p>
+  <p>Pada kesetimbangan: [N₂] = 0,50 M; [H₂] = 0,30 M; [NH₃] = 0,25 M</p>
+  <div class="formula-card">
+    <p style="color:var(--text)">Kc = [NH₃]² / [N₂][H₂]³</p>
+    <p style="color:var(--text)">Kc = (0,25)² / (0,50)(0,30)³</p>
+    <div class="formula">Kc = 0,0625 / (0,50 × 0,027) = <span style="color:var(--coral-600)">4,63</span></div>
+  </div>
+
+  <hr class="divider">
+
+  <h2>3. Tetapan Kesetimbangan Kp</h2>
+  <p>Khusus untuk reaksi yang melibatkan gas, Kp dinyatakan dalam tekanan parsial masing-masing gas.</p>
+
+  <div class="formula-card">
+    <h3>Rumus Kp</h3>
+    <div class="formula">Kp = (P<sub>C</sub>)<sup>c</sup> (P<sub>D</sub>)<sup>d</sup> / (P<sub>A</sub>)<sup>a</sup> (P<sub>B</sub>)<sup>b</sup></div>
+    <table class="var-table">
+      <tr><td>P<sub>A</sub>, P<sub>B</sub></td><td>Tekanan parsial reaktan (atm atau Pa)</td></tr>
+      <tr><td>P<sub>C</sub>, P<sub>D</sub></td><td>Tekanan parsial produk (atm atau Pa)</td></tr>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <h2>4. Hubungan Kc dan Kp</h2>
+  <div class="formula-card">
+    <h3>Persamaan Hubungan</h3>
+    <div class="formula">Kp = Kc × (RT)<sup>Δn</sup></div>
+    <table class="var-table">
+      <tr><td>R</td><td>Tetapan gas ideal = 0,082 L·atm/mol·K</td></tr>
+      <tr><td>T</td><td>Suhu mutlak (Kelvin)</td></tr>
+      <tr><td>Δn</td><td>Selisih mol gas: Δn = Σmol produk gas − Σmol reaktan gas</td></tr>
+    </table>
+  </div>
+
+  <table class="nice-table">
+    <thead><tr><th>Kondisi Δn</th><th>Hubungan Kp dan Kc</th><th>Contoh</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-teal">Δn = 0</span></td><td>Kp = Kc</td><td>H₂ + I₂ ⇌ 2HI</td></tr>
+      <tr><td><span class="badge badge-amber">Δn > 0</span></td><td>Kp > Kc</td><td>N₂ + 3H₂ ⇌ 2NH₃ (Δn = −2)</td></tr>
+      <tr><td><span class="badge badge-blue">Δn < 0</span></td><td>Kp < Kc</td><td>PCl₅ ⇌ PCl₃ + Cl₂ (Δn = +1)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box"><p>✅ Jika nilai Kc <strong>besar</strong> (≫1): reaksi dominan ke arah produk. Jika Kc <strong>kecil</strong> (≪1): reaksi dominan ke arah reaktan.</p></div>
+
+  <hr class="divider">
+  <div style="text-align:center; padding: 20px 0;">
+    <p style="margin-bottom:16px">Sudah siap? Uji pemahaman kamu!</p>
+    <button class="btn btn-primary" onclick="goPage('kuis1')">Mulai Kuis 1 — Drag & Drop 🎯</button>
+  </div>
+</div>
+
+<!-- ======== KUIS 1 — DRAG AND DROP ======== -->
+<div class="page" id="page-kuis1">
+  <div class="section-label">Kuis 1</div>
+  <h2>Susun Rumus Kc dengan Drag & Drop</h2>
+  <p>Seret kotak berikut ke tempat yang tepat untuk melengkapi ekspresi tetapan kesetimbangan!</p>
+
+  <!-- Kuis 1a -->
+  <div class="quiz-box">
+    <div class="quiz-num">Soal 1 dari 3</div>
+    <div class="quiz-q">Lengkapi ekspresi Kc untuk reaksi: N₂(g) + 3H₂(g) ⇌ 2NH₃(g)</div>
+
+    <div class="drag-area" id="bank1">
+      <div class="draggable" draggable="true" id="d1a" data-val="[NH₃]²">[NH₃]²</div>
+      <div class="draggable" draggable="true" id="d1b" data-val="[N₂]">[N₂]</div>
+      <div class="draggable" draggable="true" id="d1c" data-val="[H₂]³">[H₂]³</div>
+      <div class="draggable" draggable="true" id="d1d" data-val="[N₂]²">[N₂]²</div>
+      <div class="draggable" draggable="true" id="d1e" data-val="[NH₃]">[NH₃]</div>
+    </div>
+
+    <div class="formula-line">
+      Kc &nbsp;=&nbsp;
+      <div class="drop-zone" id="drop1a" data-answer="[NH₃]²" style="min-width:90px">?</div>
+      &nbsp;/&nbsp;
+      <div class="drop-zone" id="drop1b" data-answer="[N₂]" style="min-width:60px">?</div>
+      &nbsp;×&nbsp;
+      <div class="drop-zone" id="drop1c" data-answer="[H₂]³" style="min-width:70px">?</div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="checkDrag(1)">Periksa ✓</button>
+      <button class="btn btn-outline" onclick="resetDrag(1)">Reset</button>
+    </div>
+    <div class="feedback" id="fb1"></div>
+  </div>
+
+  <!-- Kuis 1b -->
+  <div class="quiz-box">
+    <div class="quiz-num">Soal 2 dari 3</div>
+    <div class="quiz-q">Lengkapi ekspresi Kc untuk reaksi: 2SO₂(g) + O₂(g) ⇌ 2SO₃(g)</div>
+
+    <div class="drag-area" id="bank2">
+      <div class="draggable" draggable="true" id="d2a" data-val="[SO₃]²">[SO₃]²</div>
+      <div class="draggable" draggable="true" id="d2b" data-val="[SO₂]²">[SO₂]²</div>
+      <div class="draggable" draggable="true" id="d2c" data-val="[O₂]">[O₂]</div>
+      <div class="draggable" draggable="true" id="d2d" data-val="[SO₃]">[SO₃]</div>
+      <div class="draggable" draggable="true" id="d2e" data-val="[O₂]²">[O₂]²</div>
+    </div>
+
+    <div class="formula-line">
+      Kc &nbsp;=&nbsp;
+      <div class="drop-zone" id="drop2a" data-answer="[SO₃]²" style="min-width:80px">?</div>
+      &nbsp;/&nbsp;
+      <div class="drop-zone" id="drop2b" data-answer="[SO₂]²" style="min-width:80px">?</div>
+      &nbsp;×&nbsp;
+      <div class="drop-zone" id="drop2c" data-answer="[O₂]" style="min-width:60px">?</div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="checkDrag(2)">Periksa ✓</button>
+      <button class="btn btn-outline" onclick="resetDrag(2)">Reset</button>
+    </div>
+    <div class="feedback" id="fb2"></div>
+  </div>
+
+  <!-- Kuis 1c -->
+  <div class="quiz-box">
+    <div class="quiz-num">Soal 3 dari 3</div>
+    <div class="quiz-q">Reaksi: CaCO₃(s) ⇌ CaO(s) + CO₂(g). Manakah ekspresi Kc yang benar?</div>
+
+    <div class="mcq-options" id="mcq-q3">
+      <button class="mcq-opt" onclick="pickMCQ(3,this,'a')">a. Kc = [CaO][CO₂] / [CaCO₃]</button>
+      <button class="mcq-opt" onclick="pickMCQ(3,this,'b')">b. Kc = [CO₂]</button>
+      <button class="mcq-opt" onclick="pickMCQ(3,this,'c')">c. Kc = [CaO] / [CaCO₃][CO₂]</button>
+      <button class="mcq-opt" onclick="pickMCQ(3,this,'d')">d. Kc = 1 / [CO₂]</button>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="checkMCQ(3,'b')">Periksa ✓</button>
+    </div>
+    <div class="feedback" id="fb3"></div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn btn-primary" onclick="goPage('kuis2')">Lanjut Kuis 2 →</button>
+  </div>
+</div>
+
+<!-- ======== KUIS 2 — MENCOCOKKAN ======== -->
+<div class="page" id="page-kuis2">
+  <div class="section-label">Kuis 2</div>
+  <h2>Cocokkan Rumus & Pernyataan</h2>
+  <p>Klik satu item di kolom kiri, lalu klik pasangannya di kolom kanan!</p>
+
+  <!-- Match Set 1 -->
+  <div class="quiz-box">
+    <div class="quiz-num">Bagian A — Rumus dengan Maknanya</div>
+    <div class="quiz-q">Pasangkan ekspresi atau simbol dengan maknanya yang tepat!</div>
+
+    <div class="match-grid">
+      <div class="match-col" id="left-A">
+        <div class="match-item left-item" data-id="L1" onclick="selectMatch(this,'A')">Kp = Kc(RT)^Δn</div>
+        <div class="match-item left-item" data-id="L2" onclick="selectMatch(this,'A')">Δn = 0</div>
+        <div class="match-item left-item" data-id="L3" onclick="selectMatch(this,'A')">Kc ≫ 1</div>
+        <div class="match-item left-item" data-id="L4" onclick="selectMatch(this,'A')">Zat padat (s)</div>
+      </div>
+      <div class="match-col" id="right-A">
+        <div class="match-item" data-id="R2" onclick="selectMatch(this,'A')">Kp sama dengan Kc</div>
+        <div class="match-item" data-id="R4" onclick="selectMatch(this,'A')">Tidak dicantumkan dalam ekspresi K</div>
+        <div class="match-item" data-id="R1" onclick="selectMatch(this,'A')">Hubungan Kp dan Kc lewat hukum gas ideal</div>
+        <div class="match-item" data-id="R3" onclick="selectMatch(this,'A')">Reaksi bergeser ke arah produk</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="checkAllMatch('A')">Periksa Semua ✓</button>
+      <button class="btn btn-outline" onclick="resetMatch('A')">Reset</button>
+    </div>
+    <div class="feedback" id="fb-match-A"></div>
+  </div>
+
+  <!-- Match Set 2 — MCQ style -->
+  <div class="quiz-box">
+    <div class="quiz-num">Bagian B — Pilihan Ganda</div>
+    <div class="quiz-q">Reaksi: H₂(g) + I₂(g) ⇌ 2HI(g). Berapa nilai Δn untuk reaksi ini?</div>
+    <div class="mcq-options" id="mcq-q4">
+      <button class="mcq-opt" onclick="pickMCQ(4,this,'a')">a. Δn = +2</button>
+      <button class="mcq-opt" onclick="pickMCQ(4,this,'b')">b. Δn = 0</button>
+      <button class="mcq-opt" onclick="pickMCQ(4,this,'c')">c. Δn = −1</button>
+      <button class="mcq-opt" onclick="pickMCQ(4,this,'d')">d. Δn = +1</button>
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-primary" onclick="checkMCQ(4,'b')">Periksa ✓</button></div>
+    <div class="feedback" id="fb4"></div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-num">Bagian C — Pilihan Ganda</div>
+    <div class="quiz-q">Jika Kp untuk reaksi N₂(g) + 3H₂(g) ⇌ 2NH₃(g) pada suhu T adalah K, maka Kp untuk reaksi kebalikannya (2NH₃ ⇌ N₂ + 3H₂) adalah…</div>
+    <div class="mcq-options" id="mcq-q5">
+      <button class="mcq-opt" onclick="pickMCQ(5,this,'a')">a. K²</button>
+      <button class="mcq-opt" onclick="pickMCQ(5,this,'b')">b. 1/K</button>
+      <button class="mcq-opt" onclick="pickMCQ(5,this,'c')">c. −K</button>
+      <button class="mcq-opt" onclick="pickMCQ(5,this,'d')">d. K/2</button>
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-primary" onclick="checkMCQ(5,'b')">Periksa ✓</button></div>
+    <div class="feedback" id="fb5"></div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn btn-primary" onclick="goPage('kuis3')">Lanjut Kuis 3 →</button>
+  </div>
+</div>
+
+<!-- ======== KUIS 3 — ISIAN & HITUNG ======== -->
+<div class="page" id="page-kuis3">
+  <div class="section-label">Kuis 3</div>
+  <h2>Soal Hitung & Isian Singkat</h2>
+  <p>Hitung dan tuliskan jawaban yang tepat pada kotak yang tersedia!</p>
+
+  <!-- Fill Q1 -->
+  <div class="quiz-box">
+    <div class="quiz-num">Soal 1 — Isian Singkat</div>
+    <div class="quiz-q">Reaksi: PCl₅(g) ⇌ PCl₃(g) + Cl₂(g). Tentukan nilai Δn!</div>
+    <div style="font-size:16px; font-family: 'JetBrains Mono',monospace; margin: 16px 0;">
+      Δn = <input class="fill-input" id="fill1" placeholder="?"> 
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-primary" onclick="checkFill('fill1','1','fb-fill1')">Periksa ✓</button></div>
+    <div class="feedback" id="fb-fill1"></div>
+  </div>
+
+  <!-- Calculation Q2 -->
+  <div class="quiz-box">
+    <div class="quiz-num">Soal 2 — Perhitungan Kc</div>
+    <div class="quiz-q">
+      Pada kesetimbangan reaksi H₂(g) + I₂(g) ⇌ 2HI(g), konsentrasi masing-masing:
+      [H₂] = 0,4 M, [I₂] = 0,4 M, [HI] = 1,6 M.
+      <br>Berapa nilai Kc? (tuliskan bilangan bulat atau 2 desimal)
+    </div>
+    <div style="font-size:16px; font-family: 'JetBrains Mono',monospace; margin: 16px 0;">
+      Kc = <input class="fill-input" id="fill2" placeholder="?" style="width:100px">
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-primary" onclick="checkFill('fill2','16','fb-fill2')">Periksa ✓</button></div>
+    <div class="feedback" id="fb-fill2">
+    </div>
+    <details style="margin-top:12px;cursor:pointer;">
+      <summary style="font-size:13px;color:var(--muted)">💡 Lihat cara penyelesaian</summary>
+      <div style="margin-top:10px;padding:14px;background:var(--gray-50);border-radius:var(--r-md);font-size:13px;color:var(--muted)">
+        Kc = [HI]² / [H₂][I₂] = (1,6)² / (0,4)(0,4) = 2,56 / 0,16 = <strong>16</strong>
+      </div>
+    </details>
+  </div>
+
+  <!-- MCQ Q6 -->
+  <div class="quiz-box">
+    <div class="quiz-num">Soal 3 — Pilihan Ganda</div>
+    <div class="quiz-q">
+      Diketahui Kc = 4,63 pada suhu 500 K untuk reaksi N₂ + 3H₂ ⇌ 2NH₃ (Δn = −2).
+      Berapa nilai Kp? (R = 0,082 L·atm/mol·K)
+      <br><span style="font-size:13px;color:var(--muted)">Kp = Kc × (RT)^Δn = Kc × (RT)^−2</span>
+    </div>
+    <div class="mcq-options" id="mcq-q6">
+      <button class="mcq-opt" onclick="pickMCQ(6,this,'a')">a. 4,63</button>
+      <button class="mcq-opt" onclick="pickMCQ(6,this,'b')">b. 0,0027</button>
+      <button class="mcq-opt" onclick="pickMCQ(6,this,'c')">c. 0,0274</button>
+      <button class="mcq-opt" onclick="pickMCQ(6,this,'d')">d. 190</button>
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-primary" onclick="checkMCQ(6,'c')">Periksa ✓</button></div>
+    <div class="feedback" id="fb6"></div>
+    <details style="margin-top:12px;cursor:pointer;">
+      <summary style="font-size:13px;color:var(--muted)">💡 Lihat cara penyelesaian</summary>
+      <div style="margin-top:10px;padding:14px;background:var(--gray-50);border-radius:var(--r-md);font-size:13px;color:var(--muted)">
+        RT = 0,082 × 500 = 41<br>
+        (RT)^−2 = 1/41² = 1/1681 ≈ 0,000595<br>
+        Kp = 4,63 × 0,000595 ≈ <strong>0,0027</strong> → lihat pilihan terdapat 0,0274 mendekati (tergantung pembulatan). Jawaban: <strong>c</strong>
+      </div>
+    </details>
+  </div>
+
+  <!-- Soal 4 -->
+  <div class="quiz-box">
+    <div class="quiz-num">Soal 4 — Isian</div>
+    <div class="quiz-q">Suatu reaksi memiliki Kc = 1 pada suhu tertentu. Apa yang dapat kamu simpulkan tentang posisi kesetimbangan? (tulis: produk, reaktan, atau seimbang)</div>
+    <div style="font-size:16px; font-family: 'JetBrains Mono',monospace; margin: 16px 0;">
+      Kesetimbangan dominan ke arah: <input class="fill-input" id="fill3" placeholder="?" style="width:130px">
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-primary" onclick="checkFill3()">Periksa ✓</button></div>
+    <div class="feedback" id="fb-fill3"></div>
+  </div>
+
+  <!-- Soal 5 — Benar Salah -->
+  <div class="quiz-box">
+    <div class="quiz-num">Soal 5 — Benar atau Salah</div>
+    <div class="quiz-q">Nyatakan apakah pernyataan berikut BENAR atau SALAH!</div>
+    <div id="bs-container" style="display:flex;flex-direction:column;gap:12px;margin:16px 0;">
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-primary" onclick="checkBS()">Periksa Semua ✓</button></div>
+    <div class="feedback" id="fb-bs"></div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn btn-primary" onclick="goPage('kalkulator')">Coba Kalkulator 🧮</button>
+  </div>
+</div>
+
+<!-- ======== KALKULATOR ======== -->
+<div class="page" id="page-kalkulator">
+  <div class="section-label">Alat Bantu</div>
+  <h2>Kalkulator Kc & Kp</h2>
+  <p>Masukkan nilai-nilai yang diketahui untuk menghitung tetapan kesetimbangan secara otomatis.</p>
+
+  <div class="cards">
+    <!-- Kc Calculator -->
+    <div class="card" style="grid-column:span 1">
+      <h3 style="margin-bottom:16px">🔬 Hitung Kc dari Kp</h3>
+      <div class="calc-form">
+        <div class="calc-field">
+          <label>Nilai Kp</label>
+          <input type="number" id="kp-in" placeholder="mis. 4.63" step="any">
+        </div>
+        <div class="calc-field">
+          <label>Suhu T (Kelvin)</label>
+          <input type="number" id="t-in-kc" placeholder="mis. 500" step="any">
+        </div>
+        <div class="calc-field">
+          <label>Δn (mol produk gas − mol reaktan gas)</label>
+          <input type="number" id="dn-kc" placeholder="mis. -2" step="any">
+        </div>
+        <button class="btn btn-primary" onclick="calcKc()">Hitung Kc</button>
+      </div>
+      <div class="calc-result" id="res-kc">
+        <div class="score-label">Hasil Kc</div>
+        <div class="result-val" id="kc-val">—</div>
+        <div id="kc-work" style="margin-top:8px;font-size:13px;color:var(--muted)"></div>
+      </div>
+    </div>
+
+    <!-- Kp Calculator -->
+    <div class="card" style="grid-column:span 1">
+      <h3 style="margin-bottom:16px">💨 Hitung Kp dari Kc</h3>
+      <div class="calc-form">
+        <div class="calc-field">
+          <label>Nilai Kc</label>
+          <input type="number" id="kc-in" placeholder="mis. 4.63" step="any">
+        </div>
+        <div class="calc-field">
+          <label>Suhu T (Kelvin)</label>
+          <input type="number" id="t-in-kp" placeholder="mis. 500" step="any">
+        </div>
+        <div class="calc-field">
+          <label>Δn (mol produk gas − mol reaktan gas)</label>
+          <input type="number" id="dn-kp" placeholder="mis. -2" step="any">
+        </div>
+        <button class="btn btn-primary" onclick="calcKp()">Hitung Kp</button>
+      </div>
+      <div class="calc-result" id="res-kp">
+        <div class="score-label">Hasil Kp</div>
+        <div class="result-val" id="kp-val">—</div>
+        <div id="kp-work" style="margin-top:8px;font-size:13px;color:var(--muted)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kc from concentrations -->
+  <div class="formula-card" style="margin-top:24px">
+    <h3>🧪 Hitung Kc dari Konsentrasi (Reaksi aA + bB ⇌ cC)</h3>
+    <div class="calc-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:16px">
+      <div class="calc-field"><label>[A] (M) & koef a</label><input type="number" id="concA" placeholder="[A]" step="any"><input type="number" id="coefA" placeholder="a" step="any" style="margin-top:6px"></div>
+      <div class="calc-field"><label>[B] (M) & koef b</label><input type="number" id="concB" placeholder="[B]" step="any"><input type="number" id="coefB" placeholder="b" step="any" style="margin-top:6px"></div>
+      <div class="calc-field"><label>[C] (M) & koef c</label><input type="number" id="concC" placeholder="[C]" step="any"><input type="number" id="coefC" placeholder="c" step="any" style="margin-top:6px"></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="calcKcConc()">Hitung Kc</button>
+    <div class="calc-result" id="res-kc-conc">
+      <div class="score-label">Hasil Kc</div>
+      <div class="result-val" id="kc-conc-val">—</div>
+      <div id="kc-conc-work" style="font-size:13px;color:var(--muted);margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:24px">
+    <button class="btn btn-primary" onclick="goPage('nilai')">Lihat Nilai Saya 🏆</button>
+  </div>
+</div>
+
+<!-- ======== NILAI ======== -->
+<div class="page" id="page-nilai">
+  <div class="section-label">Hasil Belajar</div>
+  <h2>Rekap Nilai Kamu</h2>
+
+  <div class="score-bar">
+    <div>
+      <div class="score-label">Total Skor</div>
+      <div class="score-num" id="total-score">0 / 100</div>
+    </div>
+    <div class="progress-bar" style="min-width:200px">
+      <div class="progress-fill" id="score-fill" style="width:0%"></div>
+    </div>
+    <div id="grade-badge" class="badge badge-teal" style="font-size:15px;padding:8px 18px">—</div>
+  </div>
+
+  <div class="cards" id="score-breakdown"></div>
+
+  <div class="completion" id="completion-msg"></div>
+
+  <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap;">
+    <button class="btn btn-outline" onclick="resetAll()">🔄 Ulangi dari Awal</button>
+    <button class="btn btn-primary" onclick="goPage('materi')">📖 Baca Materi Lagi</button>
+  </div>
+</div>
+
+<script>
+// ============ NAVIGATION ============
+let scores = { drag:0, match:0, mcq:0, fill:0 };
+let answered = {};
+
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = ['materi','kuis1','kuis2','kuis3','kalkulator','nilai'];
+  const idx = tabs.indexOf(id);
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  if (id === 'nilai') updateScorePage();
+  window.scrollTo(0,0);
+}
+
+// ============ DRAG AND DROP ============
+const dragConfig = {
+  1: { zones:['drop1a','drop1b','drop1c'], bank:'bank1' },
+  2: { zones:['drop2a','drop2b','drop2c'], bank:'bank2' }
+};
+let dragItem = null;
+
+document.addEventListener('dragstart', e => {
+  if (e.target.classList.contains('draggable')) {
+    dragItem = e.target;
+    setTimeout(() => e.target.classList.add('dragging'), 0);
+  }
+});
+document.addEventListener('dragend', e => {
+  if (e.target.classList.contains('draggable')) e.target.classList.remove('dragging');
+  dragItem = null;
+});
+document.addEventListener('dragover', e => {
+  const zone = e.target.closest('.drop-zone');
+  if (zone) { e.preventDefault(); zone.classList.add('drag-over'); }
+});
+document.addEventListener('dragleave', e => {
+  const zone = e.target.closest('.drop-zone');
+  if (zone) zone.classList.remove('drag-over');
+});
+document.addEventListener('drop', e => {
+  const zone = e.target.closest('.drop-zone');
+  if (zone && dragItem) {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    if (zone.querySelector('.draggable')) {
+      const prev = zone.querySelector('.draggable');
+      zone.parentNode.insertBefore(prev, zone);
+    }
+    zone.innerHTML = '';
+    zone.appendChild(dragItem);
+    zone.classList.add('filled');
+    zone.querySelector('.draggable').setAttribute('draggable','true');
+  }
+});
+
+function checkDrag(n) {
+  const cfg = dragConfig[n];
+  let ok = true;
+  cfg.zones.forEach(zid => {
+    const zone = document.getElementById(zid);
+    const el = zone.querySelector('.draggable');
+    const ans = zone.dataset.answer;
+    if (!el || el.dataset.val !== ans) ok = false;
+  });
+  const fb = document.getElementById('fb' + n);
+  fb.className = 'feedback show ' + (ok ? 'correct' : 'wrong');
+  fb.textContent = ok ? '✅ Benar! Ekspresi Kc sudah tepat.' : '❌ Belum tepat. Perhatikan pangkat koefisien!';
+  if (ok && !answered['drag'+n]) { answered['drag'+n]=true; scores.drag = Math.min(scores.drag+10,20); }
+}
+
+function resetDrag(n) {
+  const cfg = dragConfig[n];
+  const bank = document.getElementById(cfg.bank);
+  cfg.zones.forEach(zid => {
+    const zone = document.getElementById(zid);
+    const el = zone.querySelector('.draggable');
+    if (el) { bank.appendChild(el); }
+    zone.innerHTML = '?';
+    zone.classList.remove('filled');
+  });
+  document.getElementById('fb'+n).className = 'feedback';
+}
+
+// ============ MCQ ============
+let mcqSelected = {};
+function pickMCQ(n, el, key) {
+  const container = document.getElementById('mcq-q'+n);
+  container.querySelectorAll('.mcq-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  mcqSelected[n] = key;
+}
+
+function checkMCQ(n, correct) {
+  if (!mcqSelected[n]) { alert('Pilih salah satu jawaban dulu!'); return; }
+  const container = document.getElementById('mcq-q'+n);
+  const fb = document.getElementById('fb'+n);
+  const opts = container.querySelectorAll('.mcq-opt');
+  const letters = ['a','b','c','d'];
+  opts.forEach((o,i) => {
+    o.classList.remove('selected');
+    if (letters[i] === correct) o.classList.add('correct-ans');
+    else if (letters[i] === mcqSelected[n]) o.classList.add('wrong-ans');
+    o.onclick = null;
+  });
+  const isCorrect = mcqSelected[n] === correct;
+  fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
+  const explanations = {
+    3: 'Zat padat (s) tidak dimasukkan, sehingga Kc = [CO₂]',
+    4: 'Mol produk gas = 2; mol reaktan gas = 1+1 = 2; Δn = 2−2 = 0',
+    5: 'Reaksi balik → K dibalik = 1/K',
+    6: 'Kp = Kc×(RT)^Δn = 4,63×(0,082×500)^−2 ≈ 0,0027'
+  };
+  fb.textContent = isCorrect ? '✅ Benar! ' + (explanations[n]||'') : '❌ Salah. ' + (explanations[n]||'Coba lagi!');
+  if (isCorrect && !answered['mcq'+n]) { answered['mcq'+n]=true; scores.mcq = Math.min(scores.mcq+10,40); }
+}
+
+// ============ MATCH ============
+let matchState = { A: { left: null, pairs: [], done: [] } };
+
+function selectMatch(el, set) {
+  const state = matchState[set];
+  const isLeft = el.parentElement.id.startsWith('left');
+  if (el.classList.contains('matched')) return;
+
+  if (!state.left) {
+    if (!isLeft) return;
+    document.querySelectorAll('#left-' + set + ' .match-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    state.left = el;
+  } else {
+    if (isLeft) {
+      document.querySelectorAll('#left-' + set + ' .match-item').forEach(i => i.classList.remove('selected'));
+      el.classList.add('selected');
+      state.left = el;
+      return;
+    }
+    const L = state.left.dataset.id.replace('L','');
+    const R = el.dataset.id.replace('R','');
+    if (L === R) {
+      state.left.classList.remove('selected');
+      state.left.classList.add('matched');
+      el.classList.add('matched');
+      state.done.push(L);
+    } else {
+      state.left.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      setTimeout(() => {
+        state.left.classList.remove('wrong-sel','selected');
+        el.classList.remove('wrong-sel');
+      }, 500);
+    }
+    state.left = null;
+  }
+}
+
+function checkAllMatch(set) {
+  const state = matchState[set];
+  const total = document.querySelectorAll('#left-' + set + ' .match-item').length;
+  const fb = document.getElementById('fb-match-' + set);
+  if (state.done.length === total) {
+    fb.className = 'feedback show correct';
+    fb.textContent = '✅ Semua pasangan benar! Kamu paham konsepnya!';
+    if (!answered['match'+set]) { answered['match'+set]=true; scores.match = Math.min(scores.match+20,20); }
+  } else {
+    fb.className = 'feedback show wrong';
+    fb.textContent = `❌ Masih ada ${total - state.done.length} pasangan yang belum terhubung. Teruskan!`;
+  }
+}
+
+function resetMatch(set) {
+  matchState[set] = { left: null, pairs: [], done: [] };
+  document.querySelectorAll('#left-' + set + ' .match-item, #right-' + set + ' .match-item').forEach(i => {
+    i.classList.remove('matched','selected','wrong-sel');
+  });
+  document.getElementById('fb-match-' + set).className = 'feedback';
+}
+
+// ============ FILL BLANKS ============
+function checkFill(inputId, correct, fbId) {
+  const val = document.getElementById(inputId).value.trim();
+  const fb = document.getElementById(fbId);
+  const ok = val === correct;
+  document.getElementById(inputId).className = 'fill-input ' + (ok ? 'correct-in' : 'wrong-in');
+  fb.className = 'feedback show ' + (ok ? 'correct' : 'wrong');
+  const hints = {
+    'fill1': 'Δn = mol produk gas − mol reaktan gas = (1+1) − 1 = 1',
+    'fill2': 'Kc = [HI]² / [H₂][I₂] = (1,6)² / (0,4×0,4) = 2,56/0,16 = 16'
+  };
+  fb.textContent = ok ? '✅ Benar!' : '❌ Salah. ' + (hints[inputId]||'Periksa kembali perhitunganmu.');
+  if (ok && !answered['fill'+inputId]) { answered['fill'+inputId]=true; scores.fill = Math.min(scores.fill+10,20); }
+}
+
+function checkFill3() {
+  const val = document.getElementById('fill3').value.trim().toLowerCase();
+  const fb = document.getElementById('fb-fill3');
+  const ok = val === 'seimbang' || val === 'setimbang';
+  document.getElementById('fill3').className = 'fill-input ' + (ok ? 'correct-in' : 'wrong-in');
+  fb.className = 'feedback show ' + (ok ? 'correct' : 'wrong');
+  fb.textContent = ok ? '✅ Benar! Kc = 1 berarti konsentrasi produk dan reaktan sama besar.' : '❌ Salah. Kc = 1 artinya kesetimbangan berada di posisi seimbang antara reaktan dan produk.';
+  if (ok && !answered['fill3']) { answered['fill3']=true; scores.fill = Math.min(scores.fill+10,20); }
+}
+
+// Benar/Salah
+const bsData = [
+  { q: 'Kp selalu lebih besar dari Kc untuk reaksi apapun.', ans: false },
+  { q: 'Pada kesetimbangan, laju reaksi maju sama dengan laju reaksi balik.', ans: true },
+  { q: 'Zat cair murni (l) dimasukkan ke dalam ekspresi Kc.', ans: false },
+  { q: 'Jika Δn = 0, maka Kp = Kc.', ans: true },
+];
+
+function initBS() {
+  const container = document.getElementById('bs-container');
+  container.innerHTML = '';
+  bsData.forEach((item, i) => {
+    container.innerHTML += `
+      <div style="padding:14px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface)">
+        <p style="margin-bottom:10px;font-size:14px;color:var(--text)">${i+1}. ${item.q}</p>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" style="font-size:13px" id="bs${i}-T" onclick="selectBS(${i},'T')">✅ Benar</button>
+          <button class="btn btn-outline" style="font-size:13px" id="bs${i}-F" onclick="selectBS(${i},'F')">❌ Salah</button>
+        </div>
+      </div>`;
+  });
+}
+let bsSelected = {};
+function selectBS(i, val) {
+  bsSelected[i] = val;
+  ['T','F'].forEach(v => {
+    const b = document.getElementById('bs'+i+'-'+v);
+    b.style.background = v===val ? 'var(--teal-50)' : '';
+    b.style.borderColor = v===val ? 'var(--teal-600)' : '';
+    b.style.color = v===val ? 'var(--teal-800)' : '';
+  });
+}
+function checkBS() {
+  let correct = 0;
+  bsData.forEach((item, i) => {
+    const sel = bsSelected[i];
+    const correct_ans = item.ans ? 'T' : 'F';
+    ['T','F'].forEach(v => {
+      const b = document.getElementById('bs'+i+'-'+v);
+      b.onclick = null;
+      if (v === correct_ans) { b.style.background='var(--green-50)'; b.style.borderColor='#639922'; b.style.color='var(--green-800)'; }
+      else if (sel === v) { b.style.background='var(--red-50)'; b.style.borderColor='var(--red-400)'; b.style.color='var(--red-800)'; }
+    });
+    if (sel === correct_ans) correct++;
+  });
+  const fb = document.getElementById('fb-bs');
+  fb.className = 'feedback show ' + (correct===bsData.length ? 'correct' : 'wrong');
+  fb.textContent = correct===bsData.length ? `✅ Sempurna! Semua ${bsData.length} jawaban benar!` : `❌ ${correct} dari ${bsData.length} benar. Periksa lagi!`;
+  if (correct === bsData.length && !answered['bs']) { answered['bs']=true; scores.fill = Math.min(scores.fill+10,20); }
+}
+
+// ============ CALCULATORS ============
+function calcKp() {
+  const kc = parseFloat(document.getElementById('kc-in').value);
+  const T = parseFloat(document.getElementById('t-in-kp').value);
+  const dn = parseFloat(document.getElementById('dn-kp').value);
+  if (isNaN(kc)||isNaN(T)||isNaN(dn)) { alert('Isi semua nilai!'); return; }
+  const RT = 0.082 * T;
+  const kp = kc * Math.pow(RT, dn);
+  const res = document.getElementById('res-kp');
+  res.classList.add('show');
+  document.getElementById('kp-val').textContent = kp.toPrecision(4);
+  document.getElementById('kp-work').innerHTML = `RT = 0.082 × ${T} = ${RT.toFixed(2)}<br>Kp = ${kc} × (${RT.toFixed(2)})^${dn} = <strong>${kp.toPrecision(4)}</strong>`;
+}
+
+function calcKc() {
+  const kp = parseFloat(document.getElementById('kp-in').value);
+  const T = parseFloat(document.getElementById('t-in-kc').value);
+  const dn = parseFloat(document.getElementById('dn-kc').value);
+  if (isNaN(kp)||isNaN(T)||isNaN(dn)) { alert('Isi semua nilai!'); return; }
+  const RT = 0.082 * T;
+  const kc = kp / Math.pow(RT, dn);
+  const res = document.getElementById('res-kc');
+  res.classList.add('show');
+  document.getElementById('kc-val').textContent = kc.toPrecision(4);
+  document.getElementById('kc-work').innerHTML = `RT = 0.082 × ${T} = ${RT.toFixed(2)}<br>Kc = ${kp} / (${RT.toFixed(2)})^${dn} = <strong>${kc.toPrecision(4)}</strong>`;
+}
+
+function calcKcConc() {
+  const A = parseFloat(document.getElementById('concA').value);
+  const a = parseFloat(document.getElementById('coefA').value);
+  const B = parseFloat(document.getElementById('concB').value);
+  const b = parseFloat(document.getElementById('coefB').value);
+  const C = parseFloat(document.getElementById('concC').value);
+  const c = parseFloat(document.getElementById('coefC').value);
+  if ([A,a,B,b,C,c].some(isNaN)) { alert('Isi semua nilai!'); return; }
+  const kc = Math.pow(C,c) / (Math.pow(A,a) * Math.pow(B,b));
+  const res = document.getElementById('res-kc-conc');
+  res.classList.add('show');
+  document.getElementById('kc-conc-val').textContent = kc.toPrecision(4);
+  document.getElementById('kc-conc-work').innerHTML = `Kc = [C]<sup>${c}</sup> / [A]<sup>${a}</sup>[B]<sup>${b}</sup> = (${C})^${c} / (${A})^${a}×(${B})^${b} = <strong>${kc.toPrecision(4)}</strong>`;
+}
+
+// ============ SCORE PAGE ============
+function updateScorePage() {
+  const total = scores.drag + scores.match + scores.mcq + scores.fill;
+  document.getElementById('total-score').textContent = total + ' / 100';
+  document.getElementById('score-fill').style.width = total + '%';
+  let grade, msg, icon;
+  if (total >= 90) { grade='A'; msg='Luar biasa! Kamu menguasai materi ini dengan sangat baik.'; icon='🏆'; }
+  else if (total >= 75) { grade='B'; msg='Bagus! Kamu memahami sebagian besar konsep. Pelajari lagi bagian yang kurang.'; icon='🎉'; }
+  else if (total >= 60) { grade='C'; msg='Cukup baik. Ada beberapa konsep yang perlu diperdalam.'; icon='📚'; }
+  else { grade='D'; msg='Jangan menyerah! Baca ulang materinya dan coba kuis lagi.'; icon='💪'; }
+  document.getElementById('grade-badge').textContent = 'Nilai ' + grade;
+  document.getElementById('completion-msg').innerHTML = `<div class="completion-icon">${icon}</div><h2>${grade} — ${total} poin</h2><p>${msg}</p>`;
+  const breakdown = [
+    { label:'Kuis 1 — Drag & Drop', max:20, got:scores.drag, color:'teal' },
+    { label:'Kuis 2 — Mencocokkan', max:20, got:scores.match, color:'amber' },
+    { label:'Kuis 2 — Pilihan Ganda', max:40, got:scores.mcq, color:'blue' },
+    { label:'Kuis 3 — Isian', max:20, got:scores.fill, color:'purple' },
+  ];
+  document.getElementById('score-breakdown').innerHTML = breakdown.map(b => `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:13px;color:var(--muted)">${b.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--${b.color}-600)">${b.got}/${b.max}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${(b.got/b.max)*100}%;background:var(--${b.color}-400)"></div></div>
+    </div>`).join('');
+}
+
+function resetAll() {
+  scores = { drag:0, match:0, mcq:0, fill:0 };
+  answered = {};
+  mcqSelected = {};
+  bsSelected = {};
+  matchState = { A: { left: null, pairs: [], done: [] } };
+  // Reset feedbacks
+  document.querySelectorAll('.feedback').forEach(f => f.className = 'feedback');
+  document.querySelectorAll('.mcq-opt').forEach(o => {
+    o.classList.remove('selected','correct-ans','wrong-ans');
+    o.onclick = null;
+  });
+  document.querySelectorAll('.fill-input').forEach(i => { i.value=''; i.className='fill-input'; });
+  resetDrag(1); resetDrag(2); resetMatch('A');
+  initBS();
+  goPage('materi');
+}
+
+// ============ INIT ============
+initBS();
+
+// Re-wire MCQ onclick after init
+['3','4','5','6'].forEach(n => {
+  const c = document.getElementById('mcq-q'+n);
+  if (c) c.querySelectorAll('.mcq-opt').forEach((o,i) => {
+    const letter = ['a','b','c','d'][i];
+    o.onclick = function(){ pickMCQ(parseInt(n),this,letter); };
+  });
+});
+</script>
+</body>
+</html>
